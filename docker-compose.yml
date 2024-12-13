@@ -1,0 +1,32 @@
+version: '3.7'
+
+services:
+  app:
+    build: target/generated-test-sources/test-annotations
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - wiremock
+
+  h2db:
+    image: oscarfonts/h2
+    container_name: h2db
+    ports:
+      - "9092:8082"
+    environment:
+      - H2_OPTIONS=-tcp -tcpAllowOthers -tcpPort 9092 -web -webAllowOthers -webPort 8082
+    networks:
+      - h2_network
+
+networks:
+  h2_network:
+    driver: bridge
+
+  wiremock:
+    image: wiremock/wiremock:2.31.0
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./wiremock/mappings:/home/wiremock/mappings
+      - ./wiremock/__files:/home/wiremock/__files
